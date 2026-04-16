@@ -44,7 +44,6 @@
 
     <div class="login-card">
         <div class="text-center mb-8">
-            <!-- Puedes añadir un logo aquí después -->
             <h1 class="text-3xl font-bold text-gray-800 tracking-tight">CAMPUS PASTOREO</h1>
             <p class="text-gray-500 mt-2 font-medium">Acceso Privado para Alumnos</p>
         </div>
@@ -52,13 +51,13 @@
         <form id="loginForm" class="space-y-5">
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
-                <input type="text" id="username" required 
+                <input type="text" id="username" name="user" required 
                     placeholder="Tu nombre"
                     class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Contraseña</label>
-                <input type="password" id="password" required 
+                <input type="password" id="password" name="pass" required 
                     placeholder="••••••••"
                     class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
             </div>
@@ -72,7 +71,7 @@
     </div>
 
     <script>
-        // ID de tu Google Apps Script actualizado
+        // Tu ID de Google Apps Script (Asegúrate de que el script tenga la función doGet)
         const SCRIPT_ID = "AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-qF3FAOg";
         const SCRIPT_URL = `https://script.google.com/macros/s/${SCRIPT_ID}/exec`;
 
@@ -82,53 +81,53 @@
             const errorDiv = document.getElementById('errorMessage');
             const originalText = submitBtn.innerText;
             
-            // Estado de carga
+            // Mostrar estado de carga
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loader"></span> Verificando...';
             errorDiv.classList.add('hidden');
 
-            const payload = {
-                user: document.getElementById('username').value,
-                pass: document.getElementById('password').value
-            };
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
 
             try {
-                // Usamos fetch con el método POST. 
-                // Nota: Google Apps Script requiere que el cuerpo sea enviado como texto plano o usando FormData
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
+                // Construimos la URL con parámetros para usar el método GET (evita errores de CORS en GitHub Pages)
+                const finalUrl = `${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
+
+                const response = await fetch(finalUrl, {
+                    method: 'GET'
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    // Redirección exitosa a la carpeta del alumno
+                    // Redirección exitosa: lleva al alumno a su carpeta personalizada
+                    // Ejemplo de ruta: ./alumnos/Holly/index.html
                     window.location.href = `./alumnos/${result.folder}/index.html`;
                 } else {
-                    // Error de validación (usuario incorrecto o inactivo)
+                    // Mostrar mensaje de error (usuario incorrecto, clave mal o cuenta desactivada)
                     errorDiv.innerText = result.message || "Credenciales incorrectas.";
                     errorDiv.classList.remove('hidden');
                 }
 
             } catch (error) {
                 console.error("Error de login:", error);
-                errorDiv.innerText = "Hubo un problema al conectar con el servidor. Inténtalo de nuevo.";
+                errorDiv.innerText = "Error al conectar con el servidor. Verifica que el script de Google esté publicado como 'Cualquiera'.";
                 errorDiv.classList.remove('hidden');
             } finally {
+                // Restaurar botón
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;
             }
         });
     </script>
 
-    <!-- INTEGRACIÓN TAWK.TO -->
+    <!-- INTEGRACIÓN TAWK.TO (CHAT DE SOPORTE) -->
     <script type="text/javascript">
         var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
         (function(){
         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
         s1.async=true;
-        s1.src='https://embed.tawk.to/67b0709669675231a47343e0/1ik4a4qvn'; // ID de chat actualizado
+        s1.src='https://embed.tawk.to/67b0709669675231a47343e0/1ik4a4qvn';
         s1.charset='UTF-8';
         s1.setAttribute('crossorigin','*');
         s0.parentNode.insertBefore(s1,s0);
