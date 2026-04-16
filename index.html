@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Online - Pastoreo Pro</title>
+    <style>
+        :root { --primary: #2e7d32; --dark: #1b5e20; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
+        .logo { font-size: 50px; margin-bottom: 10px; }
+        h1 { color: var(--primary); margin-bottom: 25px; font-size: 24px; }
+        
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: var(--primary); }
+        
+        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: var(--dark); }
+        
+        .error-msg { color: #d32f2f; font-size: 14px; margin-top: 15px; display: none; }
+        .footer { margin-top: 20px; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="logo">🐑</div>
+    <h1>Campus Pastoreo Online</h1>
+    
+    <div class="input-group">
+        <label for="studentCode">Código de Acceso Alumno</label>
+        <input type="text" id="studentCode" placeholder="Ej: juan2026" onkeypress="handleKeyPress(event)">
+    </div>
+    
+    <button onclick="login()">Entrar al Campus</button>
+    
+    <p id="error" class="error-msg">Código no reconocido. Contacta con tu instructor.</p>
+    
+    <div class="footer">
+        © 2026 Pastoreo Profesional - Todos los derechos reservados
+    </div>
+</div>
+
+<script>
+    function login() {
+        const code = document.getElementById('studentCode').value.toLowerCase().trim();
+        const errorMsg = document.getElementById('error');
+        
+        if (code === "") return;
+
+        // Lista de alumnos autorizados (esto lo irás ampliando tú)
+        // El código debe coincidir con el nombre de la carpeta que creaste
+        const alumnosValidos = ["juan", "pedro", "maria"]; 
+
+        if (alumnosValidos.includes(code)) {
+            // Redirige a la carpeta del alumno
+            window.location.href = "./alumnos/" + code + "/index.html";
+        } else {
+            errorMsg.style.display = "block";
+        }
+    }
+
+    function handleKeyPress(e) {
+        if (e.keyCode === 13) login();
+    }
+</script>
+
+</body>
+</html>
