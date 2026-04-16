@@ -3,70 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Online - Pastoreo Pro</title>
+    <title>Campus Pastoreo Online | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #2e7d32; --dark: #1b5e20; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
-        .logo { font-size: 50px; margin-bottom: 10px; }
-        h1 { color: var(--primary); margin-bottom: 25px; font-size: 24px; }
-        
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: border-color 0.3s; }
-        input:focus { border-color: var(--primary); }
-        
-        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-        button:hover { background: var(--dark); }
-        
-        .error-msg { color: #d32f2f; font-size: 14px; margin-top: 15px; display: none; }
-        .footer { margin-top: 20px; font-size: 12px; color: #999; }
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #059669;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <div class="logo">🐑</div>
-    <h1>Campus Pastoreo Online</h1>
-    
-    <div class="input-group">
-        <label for="studentCode">Código de Acceso Alumno</label>
-        <input type="text" id="studentCode" placeholder="Ej: juan2026" onkeypress="handleKeyPress(event)">
-    </div>
-    
-    <button onclick="login()">Entrar al Campus</button>
-    
-    <p id="error" class="error-msg">Código no reconocido. Contacta con tu instructor.</p>
-    
-    <div class="footer">
-        © 2026 Pastoreo Profesional - Todos los derechos reservados
-    </div>
-</div>
+    <div class="login-card">
+        <div class="text-center mb-8">
+            <!-- Puedes añadir un logo aquí después -->
+            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">CAMPUS PASTOREO</h1>
+            <p class="text-gray-500 mt-2 font-medium">Acceso Privado para Alumnos</p>
+        </div>
 
-<script>
-    function login() {
-        const code = document.getElementById('studentCode').value.toLowerCase().trim();
-        const errorMsg = document.getElementById('error');
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
+                <input type="text" id="username" required 
+                    placeholder="Tu nombre"
+                    class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Contraseña</label>
+                <input type="password" id="password" required 
+                    placeholder="••••••••"
+                    class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+            </div>
+            <button type="submit" id="submitBtn" 
+                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all active:scale-95">
+                Entrar al Campus
+            </button>
+        </form>
         
-        if (code === "") return;
+        <div id="errorMessage" class="hidden mt-6 p-3 bg-red-50 border border-red-100 text-red-600 text-sm text-center rounded-lg font-medium"></div>
+    </div>
 
-        // Lista de alumnos autorizados (esto lo irás ampliando tú)
-        // El código debe coincidir con el nombre de la carpeta que creaste
-        const alumnosValidos = ["juan", "pedro", "maria"]; 
+    <script>
+        // ID de tu Google Apps Script actualizado
+        const SCRIPT_ID = "AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-qF3FAOg";
+        const SCRIPT_URL = `https://script.google.com/macros/s/${SCRIPT_ID}/exec`;
 
-        if (alumnosValidos.includes(code)) {
-            // Redirige a la carpeta del alumno
-            window.location.href = "./alumnos/" + code + "/index.html";
-        } else {
-            errorMsg.style.display = "block";
-        }
-    }
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            const originalText = submitBtn.innerText;
+            
+            // Estado de carga
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> Verificando...';
+            errorDiv.classList.add('hidden');
 
-    function handleKeyPress(e) {
-        if (e.keyCode === 13) login();
-    }
-</script>
+            const payload = {
+                user: document.getElementById('username').value,
+                pass: document.getElementById('password').value
+            };
+
+            try {
+                // Usamos fetch con el método POST. 
+                // Nota: Google Apps Script requiere que el cuerpo sea enviado como texto plano o usando FormData
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Redirección exitosa a la carpeta del alumno
+                    window.location.href = `./alumnos/${result.folder}/index.html`;
+                } else {
+                    // Error de validación (usuario incorrecto o inactivo)
+                    errorDiv.innerText = result.message || "Credenciales incorrectas.";
+                    errorDiv.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Error de login:", error);
+                errorDiv.innerText = "Hubo un problema al conectar con el servidor. Inténtalo de nuevo.";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        });
+    </script>
+
+    <!-- INTEGRACIÓN TAWK.TO -->
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/67b0709669675231a47343e0/1ik4a4qvn'; // ID de chat actualizado
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
 
 </body>
 </html>
