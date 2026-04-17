@@ -3,139 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Pastoreo Online | Login</title>
+    <title>Acceso Alumnos | Campus Pastoreo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .login-card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
-        }
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #059669;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="login-card">
+    <!-- Tarjeta de Login -->
+    <div class="glass-card w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl border border-white">
+        
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 tracking-tight text-emerald-700">CAMPUS PASTOREO</h1>
-            <p class="text-gray-500 mt-2 font-medium">Acceso Privado para Alumnos</p>
+            <div class="inline-block p-4 bg-emerald-50 rounded-3xl mb-4">
+                <span class="text-4xl">🐑</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">CAMPUS PASTOREO</h1>
+            <p class="text-slate-500 font-medium mt-1">Acceso Privado para Alumnos</p>
         </div>
 
+        <!-- Formulario -->
         <form id="loginForm" class="space-y-5">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
-                <input type="text" id="username" name="user" required 
-                    placeholder="Tu usuario del Excel"
-                    class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Nombre de Usuario</label>
+                <input type="text" id="userInput" required
+                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-medium"
+                    placeholder="Tu nombre">
             </div>
+
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Contraseña</label>
-                <input type="password" id="password" name="pass" required 
-                    placeholder="••••••••"
-                    class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Contraseña</label>
+                <input type="password" id="passInput" required
+                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-medium"
+                    placeholder="••••••••">
             </div>
-            <button type="submit" id="submitBtn" 
-                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 transition-all active:scale-95">
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1 active:scale-[0.98]">
                 Entrar al Campus
             </button>
         </form>
-        
-        <div id="errorMessage" class="hidden mt-6 p-3 bg-red-50 border border-red-100 text-red-600 text-sm text-center rounded-lg font-medium"></div>
+
+        <!-- Mensajes de Estado -->
+        <div id="statusMsg" class="mt-6 text-center text-sm font-semibold hidden p-4 rounded-2xl"></div>
+
+        <p class="mt-8 text-center text-slate-400 text-xs">
+            ¿Problemas de acceso? Contacta con tu instructor.
+        </p>
     </div>
 
     <script>
-        // ID de tu Google Apps Script (Versión Dinámica)
-        const SCRIPT_ID = "AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-0F3FAOg";
-        const SCRIPT_URL = `https://script.google.com/macros/s/${SCRIPT_ID}/exec`;
+        /**
+         * CONFIGURACIÓN IMPORTANTE: 
+         * Pega aquí la URL que obtuviste al "Implementar como Aplicación Web" en Apps Script.
+         */
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-qF3FAOg/exec";
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        const loginForm = document.getElementById('loginForm');
+        const statusMsg = document.getElementById('statusMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            const errorDiv = document.getElementById('errorMessage');
-            const originalText = submitBtn.innerText;
             
+            // UI: Estado de carga
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span> Verificando datos...';
-            errorDiv.classList.add('hidden');
+            submitBtn.innerText = "Verificando...";
+            statusMsg.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'bg-blue-50', 'text-blue-600');
+            statusMsg.classList.add('bg-blue-50', 'text-blue-600', 'block');
+            statusMsg.innerText = "Conectando con el servidor...";
 
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('userInput').value.trim();
+            const pass = document.getElementById('passInput').value.trim();
 
             try {
-                const finalUrl = `${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
+                // Llamada al Google Apps Script
+                const response = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                const data = await response.json();
 
-                const response = await fetch(finalUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
-
-                if (!response.ok) throw new Error('Error en el servidor de Google');
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // --- PASO CLAVE: Guardar los datos dinámicos en la sesión ---
-                    sessionStorage.setItem('alumnoData', JSON.stringify(result));
+                if (data.success) {
+                    statusMsg.innerText = "¡Acceso concedido! Redirigiendo...";
+                    statusMsg.classList.replace('text-blue-600', 'text-emerald-600');
+                    statusMsg.classList.replace('bg-blue-50', 'bg-emerald-50');
                     
-                    // Redirección a la página de plantilla dinámica
-                    // Asegúrate de tener el archivo "alumno_dinamico.html" en la carpeta /alumnos/
-                    window.location.href = `./alumnos/alumno.html`;
+                    // Guardamos los datos temporalmente para la página del alumno
+                    sessionStorage.setItem('alumnoData', JSON.stringify(data));
+                    
+                    // Redirección al panel del alumno
+                    setTimeout(() => {
+                        window.location.href = "./alumnos/Alumno.html";
+                    }, 800);
                 } else {
-                    errorDiv.innerText = result.message || "Usuario o contraseña incorrectos.";
-                    errorDiv.classList.remove('hidden');
+                    // Error de credenciales o cuenta inactiva
+                    showError(data.message || "Usuario o contraseña incorrectos");
                 }
-
             } catch (error) {
-                console.error("Error de login:", error);
-                errorDiv.innerText = "No se pudo conectar con el sistema. Revisa tu conexión.";
-                errorDiv.classList.remove('hidden');
+                console.error("Error de conexión:", error);
+                showError("No se pudo conectar con el sistema. Revisa tu conexión a internet.");
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalText;
+                if (!statusMsg.innerText.includes("Redirigiendo")) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Entrar al Campus";
+                }
             }
         });
-    </script>
 
-    <!-- INTEGRACIÓN TAWK.TO -->
-    <script type="text/javascript">
-        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-        (function(){
-        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-        s1.async=true;
-        s1.src='https://embed.tawk.to/67b0709669675231a47343e0/1ik4a4qvn';
-        s1.charset='UTF-8';
-        s1.setAttribute('crossorigin','*');
-        s0.parentNode.insertBefore(s1,s0);
-        })();
+        function showError(msg) {
+            statusMsg.innerText = msg;
+            statusMsg.classList.remove('bg-blue-50', 'text-blue-600', 'hidden');
+            statusMsg.classList.add('bg-red-50', 'text-red-600', 'block');
+        }
     </script>
-
 </body>
 </html>
