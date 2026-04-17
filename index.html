@@ -7,19 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
     <!-- Tarjeta de Login -->
     <div class="glass-card w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl border border-white">
-        
         <div class="text-center mb-8">
             <div class="inline-block p-4 bg-emerald-50 rounded-3xl mb-4">
                 <span class="text-4xl">🐑</span>
@@ -32,38 +27,31 @@
         <form id="loginForm" class="space-y-5">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Nombre de Usuario</label>
-                <input type="text" id="userInput" required
-                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-medium"
+                <input type="text" id="userInput" required 
+                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 outline-none font-medium transition-all" 
                     placeholder="Tu nombre">
             </div>
-
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Contraseña</label>
-                <input type="password" id="passInput" required
-                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-medium"
+                <input type="password" id="passInput" required 
+                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 outline-none font-medium transition-all" 
                     placeholder="••••••••">
             </div>
-
-            <button type="submit" id="submitBtn"
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all transform hover:-translate-y-1 active:scale-[0.98]">
+            <button type="submit" id="submitBtn" 
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95">
                 Entrar al Campus
             </button>
         </form>
 
         <!-- Mensajes de Estado -->
         <div id="statusMsg" class="mt-6 text-center text-sm font-semibold hidden p-4 rounded-2xl"></div>
-
-        <p class="mt-8 text-center text-slate-400 text-xs">
-            ¿Problemas de acceso? Contacta con tu instructor.
-        </p>
     </div>
 
     <script>
         /**
-         * CONFIGURACIÓN IMPORTANTE: 
-         * Pega aquí la URL que obtuviste al "Implementar como Aplicación Web" en Apps Script.
+         * URL ACTUALIZADA DEL SCRIPT
          */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-qF3FAOg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyB27KkQ4T5_Y9u-1pJxd7vrFxsBxz68QBEswYiaygkFoDuOxIgAyAYfjuTBdxF8asDug/exec";
 
         const loginForm = document.getElementById('loginForm');
         const statusMsg = document.getElementById('statusMsg');
@@ -72,52 +60,49 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // UI: Estado de carga
+            // Estado inicial de carga
             submitBtn.disabled = true;
-            submitBtn.innerText = "Verificando...";
-            statusMsg.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'bg-blue-50', 'text-blue-600');
-            statusMsg.classList.add('bg-blue-50', 'text-blue-600', 'block');
+            statusMsg.className = "mt-6 text-center text-sm font-semibold p-4 rounded-2xl bg-blue-50 text-blue-600 block";
             statusMsg.innerText = "Conectando con el servidor...";
 
             const user = document.getElementById('userInput').value.trim();
             const pass = document.getElementById('passInput').value.trim();
 
             try {
-                // Llamada al Google Apps Script
+                // Petición al Script de Google
                 const response = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                
+                if (!response.ok) throw new Error("Error en la red");
+                
                 const data = await response.json();
 
                 if (data.success) {
-                    statusMsg.innerText = "¡Acceso concedido! Redirigiendo...";
-                    statusMsg.classList.replace('text-blue-600', 'text-emerald-600');
-                    statusMsg.classList.replace('bg-blue-50', 'bg-emerald-50');
+                    statusMsg.innerText = "Acceso correcto. Redirigiendo...";
+                    statusMsg.className = "mt-6 text-center text-sm font-semibold p-4 rounded-2xl bg-emerald-50 text-emerald-600 block";
                     
-                    // Guardamos los datos temporalmente para la página del alumno
+                    // Guardamos los datos de la sesión
                     sessionStorage.setItem('alumnoData', JSON.stringify(data));
                     
-                    // Redirección al panel del alumno
+                    // Redirección a la subcarpeta alumnos/Alumno.html
                     setTimeout(() => {
-                        window.location.href = "./alumnos/Alumno.html";
-                    }, 800);
+                        window.location.href = "alumnos/Alumno.html";
+                    }, 600);
                 } else {
-                    // Error de credenciales o cuenta inactiva
                     showError(data.message || "Usuario o contraseña incorrectos");
                 }
             } catch (error) {
-                console.error("Error de conexión:", error);
-                showError("No se pudo conectar con el sistema. Revisa tu conexión a internet.");
+                console.error("Error de login:", error);
+                showError("No se pudo conectar. Asegúrate de que el Script está publicado como 'Cualquiera'.");
             } finally {
                 if (!statusMsg.innerText.includes("Redirigiendo")) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "Entrar al Campus";
                 }
             }
         });
 
         function showError(msg) {
             statusMsg.innerText = msg;
-            statusMsg.classList.remove('bg-blue-50', 'text-blue-600', 'hidden');
-            statusMsg.classList.add('bg-red-50', 'text-red-600', 'block');
+            statusMsg.className = "mt-6 text-center text-sm font-semibold p-4 rounded-2xl bg-red-50 text-red-600 block";
         }
     </script>
 </body>
