@@ -49,7 +49,7 @@
 
     <script>
         /**
-         * URL ACTUALIZADA DEL SCRIPT
+         * URL DEL SCRIPT
          */
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyB27KkQ4T5_Y9u-1pJxd7vrFxsBxz68QBEswYiaygkFoDuOxIgAyAYfjuTBdxF8asDug/exec";
 
@@ -60,7 +60,6 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Estado inicial de carga
             submitBtn.disabled = true;
             statusMsg.className = "mt-6 text-center text-sm font-semibold p-4 rounded-2xl bg-blue-50 text-blue-600 block";
             statusMsg.innerText = "Conectando con el servidor...";
@@ -69,32 +68,35 @@
             const pass = document.getElementById('passInput').value.trim();
 
             try {
-                // Petición al Script de Google
-                const response = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                // Petición al Script de Google con modo cors explícito
+                const response = await fetch(`${SCRIPT_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
                 
-                if (!response.ok) throw new Error("Error en la red");
+                if (!response.ok) throw new Error("Servidor no disponible");
                 
                 const data = await response.json();
 
                 if (data.success) {
-                    statusMsg.innerText = "Acceso correcto. Redirigiendo...";
+                    statusMsg.innerText = "¡Bienvenido! Entrando...";
                     statusMsg.className = "mt-6 text-center text-sm font-semibold p-4 rounded-2xl bg-emerald-50 text-emerald-600 block";
                     
-                    // Guardamos los datos de la sesión
+                    // Almacenamos los datos para la plantilla
                     sessionStorage.setItem('alumnoData', JSON.stringify(data));
                     
-                    // Redirección a la subcarpeta alumnos/Alumno.html
+                    // Redirección simplificada: asume que la carpeta 'alumnos' está al mismo nivel que index.html
                     setTimeout(() => {
                         window.location.href = "alumnos/Alumno.html";
-                    }, 600);
+                    }, 500);
                 } else {
                     showError(data.message || "Usuario o contraseña incorrectos");
                 }
             } catch (error) {
                 console.error("Error de login:", error);
-                showError("No se pudo conectar. Asegúrate de que el Script está publicado como 'Cualquiera'.");
+                showError("Error de conexión. Verifica que el Script esté publicado para 'Cualquiera'.");
             } finally {
-                if (!statusMsg.innerText.includes("Redirigiendo")) {
+                if (!statusMsg.innerText.includes("Entrando")) {
                     submitBtn.disabled = false;
                 }
             }
