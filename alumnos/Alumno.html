@@ -36,8 +36,9 @@
             </div>
             <div class="flex items-center space-x-3">
                 <!-- INDICADOR DE VERSIÓN -->
-                <span class="text-[10px] bg-white/20 text-white/80 px-2 py-0.5 rounded font-mono border border-white/10">v1.0.1</span>
+                <span class="text-[10px] bg-white/20 text-white/80 px-2 py-0.5 rounded font-mono border border-white/10">v1.0.3</span>
                 
+                <!-- NOMBRE DEL ALUMNO FORMATEADO -->
                 <span id="displayUserName" class="hidden md:inline text-xs font-bold bg-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-600/50 uppercase tracking-wide"></span>
                 
                 <button onclick="logout()" class="text-xs font-bold bg-rose-500 hover:bg-rose-600 px-4 py-2 rounded-full transition-all shadow-sm active:scale-95">
@@ -67,10 +68,29 @@
     </main>
 
     <footer class="mt-12 py-8 bg-white border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">© 2026 Campus Pastoreo Online • v1.0.1</p>
+        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">© 2026 Campus Pastoreo Online • v1.0.3</p>
     </footer>
 
     <script>
+        /**
+         * Función para formatear fechas a DD/MM/AAAA
+         */
+        function formatearFecha(fechaSucia) {
+            if (!fechaSucia) return "--/--/--";
+            try {
+                const d = new Date(fechaSucia);
+                if (!isNaN(d.getTime())) {
+                    const dia = String(d.getDate()).padStart(2, '0');
+                    const mes = String(d.getMonth() + 1).padStart(2, '0');
+                    const anio = d.getFullYear();
+                    return `${dia}/${mes}/${anio}`;
+                }
+                return fechaSucia;
+            } catch (e) {
+                return fechaSucia;
+            }
+        }
+
         /**
          * Función para cerrar sesión y limpiar datos
          */
@@ -80,24 +100,21 @@
         }
 
         window.onload = function() {
-            // 1. Obtener datos del sessionStorage guardados en el login
             const rawData = sessionStorage.getItem('alumnoData');
             
             if (!rawData) {
-                // Si no hay datos, significa que no ha pasado por el login correctamente
                 window.location.href = "../index.html";
                 return;
             }
 
             const data = JSON.parse(rawData);
             
-            // 2. Mostrar nombre de usuario en la barra
-            document.getElementById('displayUserName').innerText = data.user;
+            // CAMBIO SOLICITADO: "Alumno: Nombre"
+            document.getElementById('displayUserName').innerText = "Alumno: " + data.user;
 
             const grid = document.getElementById('classesGrid');
-            grid.innerHTML = ""; // Limpiar el spinner de carga
+            grid.innerHTML = ""; 
 
-            // 3. Verificar si el alumno tiene clases asignadas
             if (!data.classes || data.classes.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full bg-white p-16 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
@@ -109,13 +126,12 @@
                 return;
             }
 
-            // 4. Renderizar las clases siguiendo el orden de las filas del Excel
             data.classes.forEach((clase, index) => {
                 const card = document.createElement('article');
                 card.className = "bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group";
                 
-                // Extraer el ID de video de Youtube
                 const videoId = clase.videoUrl;
+                const fechaCorta = formatearFecha(clase.fecha);
 
                 card.innerHTML = `
                     <div class="video-container group-hover:opacity-90 transition-opacity">
@@ -144,7 +160,7 @@
                             </div>
                             <div class="text-right">
                                 <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha</span>
-                                <span class="text-xs font-black text-slate-600">${clase.fecha || '--/--/--'}</span>
+                                <span class="text-xs font-black text-slate-600">${fechaCorta}</span>
                             </div>
                         </div>
                         
