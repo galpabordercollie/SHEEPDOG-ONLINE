@@ -19,7 +19,7 @@
             height: 0;
             overflow: hidden;
             background: #000;
-            border-radius: 1rem 1rem 0 0;
+            border-radius: 1.5rem 1.5rem 0 0;
         }
         .video-container iframe {
             position: absolute;
@@ -41,7 +41,7 @@
             </div>
             <div class="flex items-center space-x-3">
                 <!-- INDICADOR DE VERSIÓN -->
-                <span class="text-[10px] bg-white/20 text-white/80 px-2 py-0.5 rounded font-mono border border-white/10">v1.0.5</span>
+                <span class="text-[10px] bg-white/20 text-white/80 px-2 py-0.5 rounded font-mono border border-white/10">v1.0.6</span>
                 
                 <!-- NOMBRE DEL ALUMNO FORMATEADO -->
                 <span id="displayUserName" class="hidden md:inline text-xs font-bold bg-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-600/50 uppercase tracking-wide"></span>
@@ -53,18 +53,18 @@
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-4 md:p-8 min-h-screen">
+    <main class="max-w-3xl mx-auto p-4 md:p-8 min-h-screen">
         
         <!-- CABECERA -->
-        <header class="mb-10">
+        <header class="mb-10 text-center">
             <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Historial de Clases</h2>
-            <p class="text-lg text-slate-600">Revisa tus videos y las correcciones de tus entrenamientos en orden cronológico.</p>
+            <p class="text-lg text-slate-600">Revisa tus videos y las correcciones en orden cronológico.</p>
         </header>
 
-        <!-- CONTENEDOR DE CLASES DINÁMICAS -->
-        <div id="classesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- CONTENEDOR DE CLASES - AHORA EN UNA SOLA LÍNEA (COLUMNA) -->
+        <div id="classesGrid" class="flex flex-col gap-10">
             <!-- Loader inicial -->
-            <div class="col-span-full text-center py-20">
+            <div class="text-center py-20">
                 <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
                 <p class="mt-4 text-slate-500 font-medium tracking-tight">Cargando tus entrenamientos...</p>
             </div>
@@ -73,7 +73,7 @@
     </main>
 
     <footer class="mt-12 py-8 bg-white border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">© 2026 Campus Pastoreo Online • v1.0.5</p>
+        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">© 2026 Campus Pastoreo Online • v1.0.6</p>
     </footer>
 
     <script>
@@ -101,7 +101,6 @@
          */
         function logout() {
             sessionStorage.clear();
-            // Truco adicional: añadir un parámetro aleatorio al volver al index para forzar recarga
             window.location.href = "../index.html?v=" + new Date().getTime();
         }
 
@@ -122,10 +121,9 @@
 
             if (!data.classes || data.classes.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full bg-white p-16 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
+                    <div class="bg-white p-16 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
                         <div class="text-4xl mb-4">📂</div>
                         <p class="text-slate-400 text-lg font-bold">No se encontraron clases en tu registro.</p>
-                        <p class="text-slate-400 text-sm mt-1">Tu instructor añadirá nuevos videos pronto.</p>
                     </div>
                 `;
                 return;
@@ -133,13 +131,13 @@
 
             data.classes.forEach((clase, index) => {
                 const card = document.createElement('article');
-                card.className = "bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group";
+                card.className = "bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group";
                 
                 const videoId = clase.videoUrl;
                 const fechaCorta = formatearFecha(clase.fecha);
 
                 card.innerHTML = `
-                    <div class="video-container group-hover:opacity-90 transition-opacity">
+                    <div class="video-container">
                         <iframe 
                             src="https://www.youtube.com/embed/${videoId}" 
                             title="Video de entrenamiento" 
@@ -148,25 +146,23 @@
                             allowfullscreen>
                         </iframe>
                     </div>
-                    <div class="p-7 flex-grow flex flex-col">
-                        <div class="flex justify-between items-start mb-5">
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition-colors">
-                                    ${clase.titulo || 'Entrenamiento sin título'}
-                                </h3>
-                            </div>
-                            <div class="text-right">
+                    <div class="p-8 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="text-2xl font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition-colors">
+                                ${clase.titulo || 'Entrenamiento sin título'}
+                            </h3>
+                            <div class="text-right ml-4 shrink-0">
                                 <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha</span>
-                                <span class="text-xs font-black text-slate-600">${fechaCorta}</span>
+                                <span class="text-sm font-black text-slate-600">${fechaCorta}</span>
                             </div>
                         </div>
                         
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-grow group-hover:bg-white group-hover:border-emerald-100 transition-all">
-                            <h4 class="text-[10px] font-extrabold text-slate-400 uppercase mb-3 tracking-widest flex items-center">
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex-grow">
+                            <h4 class="text-[11px] font-extrabold text-emerald-600 uppercase mb-3 tracking-widest flex items-center">
                                 <span class="mr-2">💬</span> Comentarios del Instructor
                             </h4>
-                            <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line italic">
-                                "${clase.notas || 'Buen trabajo en esta sesión. Sigue practicando los fundamentos.'}"
+                            <p class="text-slate-700 text-base leading-relaxed whitespace-pre-line">
+                                "${clase.notas || 'Buen trabajo en esta sesión.'}"
                             </p>
                         </div>
                     </div>
