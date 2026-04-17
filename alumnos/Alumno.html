@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Meta etiquetas para evitar que el navegador guarde una versión vieja en caché -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -14,7 +13,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
         
-        /* Contenedor de video con relación de aspecto 16:9 */
         .video-container {
             position: relative;
             padding-bottom: 56.25%;
@@ -25,10 +23,7 @@
         }
         .video-container iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
         }
         .logo-img {
             height: 45px;
@@ -39,11 +34,9 @@
 </head>
 <body class="bg-slate-50 text-slate-900 selection:bg-emerald-100">
 
-    <!-- BARRA DE NAVEGACIÓN -->
     <nav class="bg-emerald-700 p-3 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <!-- LOGOTIPO GALPA -->
                 <img src="../Imagenes/Logo Galpa.gif" alt="Logo Galpa" class="logo-img rounded-full bg-white p-1" onerror="this.style.display='none'">
                 <div class="flex items-center space-x-2">
                     <span class="text-2xl">🐑</span>
@@ -51,11 +44,8 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <!-- INDICADOR DE VERSIÓN -->
-                <span class="hidden sm:inline-block text-[10px] bg-emerald-800 text-emerald-100 px-3 py-1 rounded-full font-mono border border-emerald-600 font-bold uppercase tracking-widest">v1.1.0</span>
-                
+                <span class="hidden sm:inline-block text-[10px] bg-emerald-800 text-emerald-100 px-3 py-1 rounded-full font-mono border border-emerald-600 font-bold uppercase tracking-widest">v1.1.5</span>
                 <span id="displayUserName" class="hidden md:inline text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 uppercase tracking-widest"></span>
-                
                 <button onclick="logout()" class="text-xs font-black bg-rose-500 hover:bg-rose-600 px-5 py-2.5 rounded-full transition-all shadow-md active:scale-95 uppercase tracking-widest">
                     Salir
                 </button>
@@ -64,30 +54,24 @@
     </nav>
 
     <main class="max-w-3xl mx-auto p-4 md:p-10 min-h-screen">
-        
-        <!-- ENCABEZADO -->
         <header class="mb-12 text-center">
             <h2 class="text-4xl font-black text-slate-800 mb-3 tracking-tight">Historial de Clases</h2>
             <p class="text-lg text-slate-500 font-medium">Visualiza tus progresos y resuelve tus dudas con el instructor.</p>
         </header>
 
-        <!-- CONTENEDOR DE CLASES (UNA SOLA COLUMNA) -->
         <div id="classesGrid" class="flex flex-col gap-12">
-            <!-- Loader visual mientras cargan los datos -->
             <div class="text-center py-24">
                 <div class="inline-block animate-spin rounded-full h-14 w-14 border-4 border-emerald-500 border-t-transparent"></div>
-                <p class="mt-6 text-slate-400 font-bold uppercase tracking-widest text-xs">Sincronizando con tu Excel...</p>
+                <p class="mt-6 text-slate-400 font-bold uppercase tracking-widest text-xs">Cargando tus clases...</p>
             </div>
         </div>
-
     </main>
 
     <footer class="mt-20 py-10 bg-white border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-black">© 2026 Campus Pastoreo Online • Gestión Deportiva Galpa • v1.1.0</p>
+        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-black">© 2026 Campus Pastoreo Online • Gestión Deportiva Galpa • v1.1.5</p>
     </footer>
 
     <script>
-        // URL de tu Script de Google Apps Script
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNCBM7RpjnNCoDCl9M9Gyrg9pg9z3Oq8S0e0ixxH-wafhpyhtXF876lR_U2G-qF3FAOg/exec";
 
         function formatearFecha(fechaSucia) {
@@ -104,7 +88,7 @@
             } catch (e) { return fechaSucia; }
         }
 
-        async function guardarComentario(btn, user, fecha, titulo) {
+        async function guardarComentario(btn, user, fecha, titulo, index) {
             const container = btn.closest('.comment-box');
             const textarea = container.querySelector('textarea');
             const originalText = btn.innerText;
@@ -112,8 +96,6 @@
 
             if (!nuevoComentario) {
                 textarea.focus();
-                textarea.classList.add('ring-2', 'ring-rose-400');
-                setTimeout(() => textarea.classList.remove('ring-2', 'ring-rose-400'), 2000);
                 return;
             }
 
@@ -122,20 +104,28 @@
             textarea.disabled = true;
 
             try {
-                // Envío de datos al script de Google mediante POST
+                // 1. Guardar localmente para que no desaparezca al recargar
+                let sessionData = JSON.parse(sessionStorage.getItem('alumnoData'));
+                if (sessionData && sessionData.classes[index]) {
+                    sessionData.classes[index].notasAlumno = nuevoComentario;
+                    sessionStorage.setItem('alumnoData', JSON.stringify(sessionData));
+                }
+
+                // 2. Enviar al Excel (Usando URLSearchParams para mayor compatibilidad con Apps Script POST)
+                const params = new URLSearchParams();
+                params.append('action', 'updateAlumnoNotas');
+                params.append('user', user);
+                params.append('fecha', fecha);
+                params.append('titulo', titulo);
+                params.append('notasAlumno', nuevoComentario);
+
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'updateAlumnoNotas',
-                        user: user,
-                        fecha: fecha,
-                        titulo: titulo,
-                        notasAlumno: nuevoComentario
-                    })
+                    mode: 'no-cors', // Mantenemos no-cors pero los parámetros están en el body
+                    body: params
                 });
 
+                // Éxito visual
                 btn.innerText = "¡ENVIADO!";
                 btn.classList.replace('bg-emerald-600', 'bg-blue-600');
                 
@@ -148,13 +138,11 @@
 
             } catch (error) {
                 console.error("Error:", error);
-                btn.innerText = "ERROR AL GUARDAR";
-                btn.classList.replace('bg-emerald-600', 'bg-rose-500');
+                btn.innerText = "ERROR";
                 textarea.disabled = false;
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerText = originalText;
-                    btn.classList.replace('bg-rose-500', 'bg-emerald-600');
                 }, 3000);
             }
         }
@@ -169,24 +157,19 @@
             if (!rawData) { window.location.href = "../index.html"; return; }
 
             const data = JSON.parse(rawData);
-            document.getElementById('displayUserName').innerText = "HOLA, " + data.user;
+            document.getElementById('displayUserName').innerText = "ALUMNO: " + data.user;
 
             const grid = document.getElementById('classesGrid');
             grid.innerHTML = ""; 
 
             if (!data.classes || data.classes.length === 0) {
-                grid.innerHTML = `
-                    <div class="bg-white p-20 rounded-[3rem] border-4 border-dashed border-slate-200 text-center">
-                        <div class="text-5xl mb-6">📂</div>
-                        <p class="text-slate-400 text-xl font-black uppercase tracking-tight">No hay clases en tu registro todavía.</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="bg-white p-20 rounded-[3rem] text-center border-4 border-dashed border-slate-200"><p class="text-slate-400 font-black">No hay clases aún.</p></div>`;
                 return;
             }
 
-            data.classes.forEach((clase) => {
+            data.classes.forEach((clase, index) => {
                 const card = document.createElement('article');
-                card.className = "bg-white rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden flex flex-col group transition-all hover:translate-y-[-4px]";
+                card.className = "bg-white rounded-[3rem] shadow-xl border border-slate-200 overflow-hidden flex flex-col transition-all hover:translate-y-[-4px]";
                 
                 const videoId = clase.videoUrl;
                 const fechaCorta = formatearFecha(clase.fecha);
@@ -198,38 +181,34 @@
                     <div class="p-8 md:p-10 flex flex-col gap-8">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-3xl font-black text-slate-800 leading-tight tracking-tight group-hover:text-emerald-700 transition-colors uppercase italic">${clase.titulo || 'Entrenamiento'}</h3>
-                                <p class="text-emerald-600 font-bold text-xs uppercase tracking-widest mt-1">${clase.tipo || 'Clase Online'}</p>
+                                <h3 class="text-3xl font-black text-slate-800 leading-tight uppercase italic">${clase.titulo || 'Entrenamiento'}</h3>
+                                <p class="text-emerald-600 font-bold text-xs uppercase tracking-widest mt-1">${clase.tipo || 'Clase'}</p>
                             </div>
                             <div class="text-right bg-slate-50 p-3 rounded-2xl border border-slate-100">
                                 <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha</span>
-                                <span class="text-sm font-black text-slate-800 tracking-tighter">${fechaCorta}</span>
+                                <span class="text-sm font-black text-slate-800">${fechaCorta}</span>
                             </div>
                         </div>
                         
-                        <!-- NOTAS DEL INSTRUCTOR -->
-                        <div class="bg-emerald-50/50 p-7 rounded-[2.5rem] border border-emerald-100/50 relative">
+                        <div class="bg-emerald-50/50 p-7 rounded-[2.5rem] border border-emerald-100/50">
                             <h4 class="text-[11px] font-black text-emerald-600 uppercase mb-3 tracking-widest flex items-center">
                                 <span class="mr-2 text-lg">📢</span> Feedback del Instructor
                             </h4>
-                            <p class="text-slate-700 text-lg leading-relaxed italic font-medium">
-                                "${clase.notas || 'Buen trabajo en esta sesión. Sigue practicando los fundamentos.'}"
-                            </p>
+                            <p class="text-slate-700 text-lg italic font-medium">"${clase.notas || 'Buen trabajo en esta sesión.'}"</p>
                         </div>
 
-                        <!-- DUDA DEL ALUMNO (NUEVO) -->
                         <div class="comment-box flex flex-col gap-4 pt-4 border-t border-slate-100">
                             <h4 class="text-[11px] font-black text-slate-400 uppercase flex items-center tracking-widest">
                                 <span class="mr-2 text-lg">🙋‍♂️</span> Tus dudas o comentarios
                             </h4>
                             <textarea 
-                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] p-5 text-base focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all resize-none text-slate-700 font-semibold placeholder:text-slate-300"
+                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-[1.5rem] p-5 text-base focus:border-emerald-500 outline-none transition-all resize-none text-slate-700 font-semibold"
                                 rows="3"
-                                placeholder="Escribe aquí cualquier pregunta para Nati o Cristóbal..."
+                                placeholder="Escribe aquí tu duda..."
                             >${clase.notasAlumno || ""}</textarea>
                             <button 
-                                onclick="guardarComentario(this, '${data.user}', '${clase.fecha}', '${clase.titulo}')"
-                                class="self-end bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black py-4 px-10 rounded-full transition-all active:scale-95 shadow-lg shadow-emerald-200 uppercase tracking-widest"
+                                onclick="guardarComentario(this, '${data.user}', '${clase.fecha}', '${clase.titulo}', ${index})"
+                                class="self-end bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black py-4 px-10 rounded-full transition-all active:scale-95 shadow-lg uppercase tracking-widest"
                             >Enviar Comentario</button>
                         </div>
                     </div>
