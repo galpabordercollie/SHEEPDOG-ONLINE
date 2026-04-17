@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Clases | Campus Pastoreo</title>
-    <!-- Carga correcta de Tailwind CSS -->
+    <title>Mi Panel | Campus Pastoreo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 1rem 1rem 0 0;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -16,132 +30,117 @@
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="bg-emerald-700 p-4 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <span class="font-bold flex items-center tracking-tight">
-                <span class="mr-2 text-xl">🐑</span> CAMPUS PASTOREO
-            </span>
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🐑</span>
+                <span class="font-bold tracking-tight">CAMPUS PASTOREO</span>
+            </div>
             <div class="flex items-center space-x-4">
-                <span id="userNameDisplay" class="text-xs bg-emerald-800 px-4 py-1.5 rounded-full font-semibold border border-emerald-600/50">Cargando...</span>
-                <button onclick="logout()" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">Salir</button>
+                <span id="displayUserName" class="hidden md:inline text-sm font-medium bg-emerald-800 px-3 py-1 rounded-lg"></span>
+                <button onclick="logout()" class="text-sm font-semibold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all">
+                    Salir
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-4xl mx-auto p-6 min-h-screen">
-        <header class="mb-10 pt-4">
-            <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">Tu Historial de Clases</h1>
-            <p class="text-slate-500 mt-2 text-lg">Revisa tus progresos, entrenamientos y correcciones técnicas.</p>
+    <main class="max-w-5xl mx-auto p-4 md:p-8 min-h-screen">
+        
+        <!-- CABECERA -->
+        <header class="mb-10">
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Historial de Clases</h2>
+            <p class="text-lg text-slate-600">Revisa tus videos y las correcciones de tus entrenamientos.</p>
         </header>
 
-        <!-- CONTENEDOR DE CLASES -->
-        <div id="classesContainer" class="space-y-12">
-            <!-- Loader visual mientras cargan los datos -->
-            <div class="text-center py-24">
-                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent"></div>
-                <p class="mt-4 text-slate-400 font-medium">Sincronizando con tu ficha en el Excel...</p>
+        <!-- CONTENEDOR DE CLASES DINÁMICAS -->
+        <div id="classesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Loader inicial -->
+            <div class="col-span-full text-center py-20">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+                <p class="mt-4 text-slate-500 font-medium">Cargando tus entrenamientos...</p>
             </div>
         </div>
+
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-200 py-10 mt-12">
-        <div class="max-w-4xl mx-auto px-6 text-center text-slate-400 text-sm">
-            <p>&copy; 2024 Campus Pastoreo Online. Todos los derechos reservados.</p>
-        </div>
+    <footer class="mt-12 py-8 bg-white border-t border-slate-200 text-center">
+        <p class="text-slate-400 text-xs">© 2026 Campus Pastoreo Online - Gestión de Entrenamiento</p>
     </footer>
 
     <script>
+        // Función para cerrar sesión
         function logout() {
             sessionStorage.clear();
             window.location.href = "../index.html";
         }
 
         window.onload = function() {
+            // 1. Obtener datos del sessionStorage
             const rawData = sessionStorage.getItem('alumnoData');
             
             if (!rawData) {
+                // Si no hay datos, volver al login
                 window.location.href = "../index.html";
                 return;
             }
 
-            let userData;
-            try {
-                userData = JSON.parse(rawData);
-            } catch (e) {
-                window.location.href = "../index.html";
-                return;
-            }
+            const data = JSON.parse(rawData);
             
-            if (!userData || !userData.success) {
-                window.location.href = "../index.html";
-                return;
-            }
+            // 2. Mostrar nombre de usuario
+            document.getElementById('displayUserName').innerText = "Alumno: " + data.user;
 
-            document.getElementById('userNameDisplay').innerText = `Alumno: ${userData.user || 'Usuario'}`;
-            
-            const container = document.getElementById('classesContainer');
-            container.innerHTML = ""; 
+            const grid = document.getElementById('classesGrid');
+            grid.innerHTML = ""; // Limpiar loader
 
-            if (!userData.classes || userData.classes.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center text-slate-400">
-                        <p class="text-xl font-medium">Aún no hay clases registradas para ti.</p>
-                        <p class="text-sm mt-2">En cuanto tu instructor suba una corrección, aparecerá aquí.</p>
+            // 3. Verificar si hay clases
+            if (!data.classes || data.classes.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white p-12 rounded-[2rem] border-2 border-dashed border-slate-200 text-center">
+                        <p class="text-slate-400 text-lg font-medium">Aún no hay clases registradas en tu ficha.</p>
                     </div>
                 `;
                 return;
             }
 
-            userData.classes.forEach(clase => {
-                const videoId = clase.videoUrl || "";
-                const videoSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+            // 4. Renderizar clases en el orden en que vienen (Fila por Fila)
+            data.classes.forEach(clase => {
+                const card = document.createElement('article');
+                card.className = "bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col";
                 
-                const card = `
-                    <article class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 group">
-                        <div class="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-slate-50/30">
+                // Formatear el ID de video por si acaso viene la URL completa
+                const videoId = clase.videoUrl;
+
+                card.innerHTML = `
+                    <div class="video-container">
+                        <iframe 
+                            src="https://www.youtube.com/embed/${videoId}" 
+                            title="Video de clase" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
                             <div>
-                                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-widest rounded-md mb-2">
-                                    ${clase.tipo || 'Clase'}
+                                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-md">
+                                    ${clase.tipo || 'Entrenamiento'}
                                 </span>
-                                <h3 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">
-                                    ${clase.titulo || 'Sin Título'}
-                                </h3>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1">${clase.titulo || 'Sin título'}</h3>
                             </div>
-                            <div class="flex items-center text-slate-400 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm self-start md:self-center">
-                                <span class="mr-2 text-base">📅</span>
-                                <span class="text-sm font-bold">${clase.fecha || '--/--/----'}</span>
-                            </div>
+                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md border">
+                                ${clase.fecha || '--/--/--'}
+                            </span>
                         </div>
                         
-                        <div class="relative aspect-video w-full bg-slate-900">
-                            ${videoId ? `
-                                <iframe 
-                                    class="absolute top-0 left-0 w-full h-full" 
-                                    src="${videoSrc}" 
-                                    frameborder="0" 
-                                    allowfullscreen>
-                                </iframe>
-                            ` : `
-                                <div class="absolute inset-0 flex items-center justify-center text-slate-500 font-bold">Video no disponible</div>
-                            `}
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex-grow">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-tight">Notas del Instructor</h4>
+                            <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                                ${clase.notas || 'No hay notas adicionales para esta sesión.'}
+                            </p>
                         </div>
-
-                        <div class="p-6 md:p-8 bg-white">
-                            <div class="flex items-start">
-                                <div class="bg-emerald-50 p-3 rounded-2xl mr-4 mt-1">
-                                    <span class="text-xl">📝</span>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-tighter mb-2">Comentarios del Instructor</h4>
-                                    <p class="text-slate-600 text-base leading-relaxed whitespace-pre-line font-medium">
-                                        ${clase.notas || "Sin notas adicionales para esta sesión."}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
+                    </div>
                 `;
-                container.innerHTML += card;
+                grid.appendChild(card);
             });
         };
     </script>
