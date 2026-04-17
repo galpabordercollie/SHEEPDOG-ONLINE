@@ -32,11 +32,15 @@
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🐑</span>
-                <span class="font-bold tracking-tight">CAMPUS PASTOREO</span>
+                <span class="font-bold tracking-tight uppercase">Campus Pastoreo</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <span id="displayUserName" class="hidden md:inline text-sm font-medium bg-emerald-800 px-3 py-1 rounded-lg"></span>
-                <button onclick="logout()" class="text-sm font-semibold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all">
+            <div class="flex items-center space-x-3">
+                <!-- INDICADOR DE VERSIÓN -->
+                <span class="text-[10px] bg-white/20 text-white/80 px-2 py-0.5 rounded font-mono border border-white/10">v1.0.1</span>
+                
+                <span id="displayUserName" class="hidden md:inline text-xs font-bold bg-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-600/50 uppercase tracking-wide"></span>
+                
+                <button onclick="logout()" class="text-xs font-bold bg-rose-500 hover:bg-rose-600 px-4 py-2 rounded-full transition-all shadow-sm active:scale-95">
                     Salir
                 </button>
             </div>
@@ -48,7 +52,7 @@
         <!-- CABECERA -->
         <header class="mb-10">
             <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Historial de Clases</h2>
-            <p class="text-lg text-slate-600">Revisa tus videos y las correcciones de tus entrenamientos.</p>
+            <p class="text-lg text-slate-600">Revisa tus videos y las correcciones de tus entrenamientos en orden cronológico.</p>
         </header>
 
         <!-- CONTENEDOR DE CLASES DINÁMICAS -->
@@ -56,86 +60,100 @@
             <!-- Loader inicial -->
             <div class="col-span-full text-center py-20">
                 <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
-                <p class="mt-4 text-slate-500 font-medium">Cargando tus entrenamientos...</p>
+                <p class="mt-4 text-slate-500 font-medium tracking-tight">Cargando tus entrenamientos...</p>
             </div>
         </div>
 
     </main>
 
     <footer class="mt-12 py-8 bg-white border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-xs">© 2026 Campus Pastoreo Online - Gestión de Entrenamiento</p>
+        <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">© 2026 Campus Pastoreo Online • v1.0.1</p>
     </footer>
 
     <script>
-        // Función para cerrar sesión
+        /**
+         * Función para cerrar sesión y limpiar datos
+         */
         function logout() {
             sessionStorage.clear();
             window.location.href = "../index.html";
         }
 
         window.onload = function() {
-            // 1. Obtener datos del sessionStorage
+            // 1. Obtener datos del sessionStorage guardados en el login
             const rawData = sessionStorage.getItem('alumnoData');
             
             if (!rawData) {
-                // Si no hay datos, volver al login
+                // Si no hay datos, significa que no ha pasado por el login correctamente
                 window.location.href = "../index.html";
                 return;
             }
 
             const data = JSON.parse(rawData);
             
-            // 2. Mostrar nombre de usuario
-            document.getElementById('displayUserName').innerText = "Alumno: " + data.user;
+            // 2. Mostrar nombre de usuario en la barra
+            document.getElementById('displayUserName').innerText = data.user;
 
             const grid = document.getElementById('classesGrid');
-            grid.innerHTML = ""; // Limpiar loader
+            grid.innerHTML = ""; // Limpiar el spinner de carga
 
-            // 3. Verificar si hay clases
+            // 3. Verificar si el alumno tiene clases asignadas
             if (!data.classes || data.classes.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full bg-white p-12 rounded-[2rem] border-2 border-dashed border-slate-200 text-center">
-                        <p class="text-slate-400 text-lg font-medium">Aún no hay clases registradas en tu ficha.</p>
+                    <div class="col-span-full bg-white p-16 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
+                        <div class="text-4xl mb-4">📂</div>
+                        <p class="text-slate-400 text-lg font-bold">No se encontraron clases en tu registro.</p>
+                        <p class="text-slate-400 text-sm mt-1">Tu instructor añadirá nuevos videos pronto.</p>
                     </div>
                 `;
                 return;
             }
 
-            // 4. Renderizar clases en el orden en que vienen (Fila por Fila)
-            data.classes.forEach(clase => {
+            // 4. Renderizar las clases siguiendo el orden de las filas del Excel
+            data.classes.forEach((clase, index) => {
                 const card = document.createElement('article');
-                card.className = "bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col";
+                card.className = "bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group";
                 
-                // Formatear el ID de video por si acaso viene la URL completa
+                // Extraer el ID de video de Youtube
                 const videoId = clase.videoUrl;
 
                 card.innerHTML = `
-                    <div class="video-container">
+                    <div class="video-container group-hover:opacity-90 transition-opacity">
                         <iframe 
                             src="https://www.youtube.com/embed/${videoId}" 
-                            title="Video de clase" 
+                            title="Video de entrenamiento" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowfullscreen>
                         </iframe>
                     </div>
-                    <div class="p-6 flex-grow flex flex-col">
-                        <div class="flex justify-between items-start mb-4">
+                    <div class="p-7 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-5">
                             <div>
-                                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-md">
-                                    ${clase.tipo || 'Entrenamiento'}
-                                </span>
-                                <h3 class="text-xl font-bold text-slate-800 mt-1">${clase.titulo || 'Sin título'}</h3>
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <span class="text-[9px] font-black text-emerald-700 uppercase tracking-tighter bg-emerald-100 px-2 py-0.5 rounded">
+                                        Fila ${index + 1}
+                                    </span>
+                                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter bg-slate-100 px-2 py-0.5 rounded">
+                                        ${clase.tipo || 'Clase'}
+                                    </span>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition-colors">
+                                    ${clase.titulo || 'Entrenamiento sin título'}
+                                </h3>
                             </div>
-                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md border">
-                                ${clase.fecha || '--/--/--'}
-                            </span>
+                            <div class="text-right">
+                                <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha</span>
+                                <span class="text-xs font-black text-slate-600">${clase.fecha || '--/--/--'}</span>
+                            </div>
                         </div>
                         
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex-grow">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-tight">Notas del Instructor</h4>
-                            <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                                ${clase.notas || 'No hay notas adicionales para esta sesión.'}
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-grow group-hover:bg-white group-hover:border-emerald-100 transition-all">
+                            <h4 class="text-[10px] font-extrabold text-slate-400 uppercase mb-3 tracking-widest flex items-center">
+                                <span class="mr-2">💬</span> Comentarios del Instructor
+                            </h4>
+                            <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line italic">
+                                "${clase.notas || 'Buen trabajo en esta sesión. Sigue practicando los fundamentos.'}"
                             </p>
                         </div>
                     </div>
